@@ -56,13 +56,13 @@ async function searchProductsForSale() {
   filtered.forEach(product => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${product.id}</td>
-      <td>${product.category}</td>
-      <td>${product.name}</td>
-      <td>${product.description || ''}</td>
-      <td>R${product.price}</td>
-      <td>${product.quantity}</td>
-      <td>
+      <td data-label="Product ID">${product.id}</td>
+      <td data-label="Category">${product.category}</td>
+      <td data-label="Name">${product.name}</td>
+      <td data-label="Description">${product.description || ''}</td>
+      <td data-label="Price">R${product.price}</td>
+      <td data-label="Stock">${product.quantity}</td>
+      <td data-label="Select">
         ${
           product.quantity > 0
             ? `<button onclick="selectProductForSale('${product.id}')">Select</button>`
