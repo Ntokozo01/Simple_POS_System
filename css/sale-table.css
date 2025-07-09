@@ -1,0 +1,14 @@
+.sale-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+.sale-table th,
+.sale-table td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+.sale-table th {
+  background: #f8f8f8;
+}

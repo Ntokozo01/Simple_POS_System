@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function clearSaleSearch() {
+  document.getElementById('saleSearchInput').value = '';
+  document.getElementById('saleSearchResults').innerHTML = '';
+  selectedProductForSale = null;
+}
+
+// Modified search: no quantity input, only select button
 async function searchProductsForSale() {
   const query = document.getElementById('saleSearchInput').value.toLowerCase();
   const allProducts = await getAllProducts();
@@ -28,55 +35,66 @@ async function searchProductsForSale() {
     return;
   }
 
-  // Create table with visible borders for cells
+  // Build table without quantity input
   const table = document.createElement('table');
-  table.style.width = '100%';
-  table.style.borderCollapse = 'collapse';
+  table.className = 'sale-table';
   table.innerHTML = `
     <thead>
       <tr>
-        <th style="border:1px solid #ccc;padding:6px;">Product ID</th>
-        <th style="border:1px solid #ccc;padding:6px;">Category</th>
-        <th style="border:1px solid #ccc;padding:6px;">Name</th>
-        <th style="border:1px solid #ccc;padding:6px;">Description</th>
-        <th style="border:1px solid #ccc;padding:6px;">Price</th>
-        <th style="border:1px solid #ccc;padding:6px;">Stock</th>
-        <th style="border:1px solid #ccc;padding:6px;">Quantity</th>
-        <th style="border:1px solid #ccc;padding:6px;">Select</th>
+        <th>Product ID</th>
+        <th>Category</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Select</th>
       </tr>
     </thead>
-    <tbody>
-    </tbody>
+    <tbody></tbody>
   `;
   const tbody = table.querySelector('tbody');
-
   filtered.forEach(product => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="border:1px solid #ccc;padding:6px;">${product.id}</td>
-      <td style="border:1px solid #ccc;padding:6px;">${product.category}</td>
-      <td style="border:1px solid #ccc;padding:6px;">${product.name}</td>
-      <td style="border:1px solid #ccc;padding:6px;">${product.description || ''}</td>
-      <td style="border:1px solid #ccc;padding:6px;">R${product.price}</td>
-      <td style="border:1px solid #ccc;padding:6px;">${product.quantity}</td>
-      <td style="border:1px solid #ccc;padding:6px;">
-        <input type="number" min="1" max="${product.quantity}" value="1" id="qty_${product.id}" style="width:60px;">
-      </td>
-      <td style="border:1px solid #ccc;padding:6px;">
-        <button onclick="selectProductForSale('${product.id}')">Select</button>
+      <td>${product.id}</td>
+      <td>${product.category}</td>
+      <td>${product.name}</td>
+      <td>${product.description || ''}</td>
+      <td>R${product.price}</td>
+      <td>${product.quantity}</td>
+      <td>
+        ${
+          product.quantity > 0
+            ? `<button onclick="selectProductForSale('${product.id}')">Select</button>`
+            : `<span style="color:#e74c3c;font-weight:bold;">Out of Stock</span>`
+        }
       </td>
     `;
     tbody.appendChild(tr);
   });
-
   resultsDiv.appendChild(table);
 }
 
-function selectProductForSale(id) {
+// Show popup on select
+async function selectProductForSale(id) {
   selectedProductForSale = id;
-  // No alert here; user will enter quantity and click "Add to Sale"
+  const allProducts = await getAllProducts();
+  const product = allProducts.find(p => p.id === id);
+  if (!product) return;
+  document.getElementById('popupProductName').innerText = `${product.name} (Stock: ${product.quantity})`;
+  const qtyInput = document.getElementById('popupProductQty');
+  qtyInput.value = 1;
+  qtyInput.max = product.quantity;
+  qtyInput.min = 1;
+  document.getElementById('saleAddPopup').style.display = 'flex';
 }
 
+function closeSalePopup() {
+  document.getElementById('saleAddPopup').style.display = 'none';
+  selectedProductForSale = null;
+}
+
+// Add to sale from popup
 async function addSelectedProductToSale() {
   if (!selectedProductForSale) {
     alert('Please select a product first.');
@@ -88,7 +106,7 @@ async function addSelectedProductToSale() {
     alert('Product not found.');
     return;
   }
-  const qtyInput = document.getElementById('qty_' + product.id);
+  const qtyInput = document.getElementById('popupProductQty');
   const qty = parseInt(qtyInput.value);
   if (isNaN(qty) || qty < 1) {
     alert('Please enter a valid quantity.');
@@ -116,6 +134,7 @@ async function addSelectedProductToSale() {
     });
   }
   selectedProductForSale = null;
+  closeSalePopup();
   renderSaleItems();
 }
 

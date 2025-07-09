@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple POS - Product Search</title>
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/sale-table.css" />
     <style>
       /* Quick UI improvements */
       .toolbar {
@@ -84,7 +85,7 @@
           placeholder="Search product for sale"
           aria-label="Search product for sale"
         />
-        <button onclick="addSelectedProductToSale()" aria-label="Add to Sale">Add to Sale</button>
+        <button onclick="clearSaleSearch()" aria-label="Clear Search">Clear</button>
       </div>
       <div id="saleSearchResults"></div>
       <h3>Sale Items</h3>
@@ -92,6 +93,21 @@
       <h3>Total: R<span id="saleTotal">0.00</span></h3>
       <button onclick="completeSale()" aria-label="Complete Sale" style="background:#27ae60;color:#fff;">Complete Sale</button>
     </section>
+
+    <!-- Sale Add Popup -->
+    <div id="saleAddPopup" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+      <div style="background:#fff; padding:24px 32px; border-radius:8px; min-width:300px; max-width:90vw; margin:auto; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        <h3 id="popupProductName"></h3>
+        <div>
+          <label for="popupProductQty">Quantity:</label>
+          <input type="number" id="popupProductQty" min="1" value="1" style="width:80px;">
+        </div>
+        <div style="margin-top:18px;">
+          <button onclick="addSelectedProductToSale()" style="background:#27ae60;color:#fff;">Add to Sale</button>
+          <button onclick="closeSalePopup()" style="margin-left:10px;">Cancel</button>
+        </div>
+      </div>
+    </div>
 
     <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
