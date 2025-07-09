@@ -1,0 +1,30 @@
+<!-- product.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple POS - Add/Edit Product</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="formTitle">Add Product</h1>
+  </header>
+  <main>
+    <form id="productForm">
+      <input type="hidden" id="productId" />
+      <label>Name: <input type="text" id="name" required /></label>
+      <label>Category: <input type="text" id="category" required /></label>
+      <label>Price: <input type="number" id="price" required /></label>
+      <label>Quantity: <input type="number" id="quantity" required /></label>
+      <label>Description: <textarea id="description"></textarea></label>
+      <button type="submit">Save</button>
+      <button type="button" onclick="window.location.href='index.html'">Cancel</button>
+    </form>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/productForm.js"></script>
+</body>
+</html>
