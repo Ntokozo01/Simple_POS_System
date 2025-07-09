@@ -33,3 +33,40 @@ button {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+.tab-btn {
+  padding: 10px 24px;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  margin-right: 4px;
+  font-weight: bold;
+}
+.tab-btn.active {
+  background: #fff;
+  border-bottom: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.section {
+  background: #fff;
+  padding: 18px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.import-group {
+  margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .toolbar {
+    flex-direction: column;
+  }
+}
