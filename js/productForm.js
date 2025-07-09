@@ -1,11 +1,11 @@
 /* js/productForm.js */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
 
   if (id) {
     document.getElementById('formTitle').innerText = 'Edit Product';
-    const product = getProductById(id);
+    const product = await getProductById(id); // Await the async function
     if (product) {
       document.getElementById('productId').value = product.id;
       document.getElementById('name').value = product.name;
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.getElementById('productForm').addEventListener('submit', function (e) {
+  document.getElementById('productForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     const name = document.getElementById('name').value.trim();
     const category = document.getElementById('category').value.trim();
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       quantity,
       description: document.getElementById('description').value,
     };
-    saveProduct(product);
+    await saveProduct(product);
     window.location.href = 'index.html';
   });
 });
