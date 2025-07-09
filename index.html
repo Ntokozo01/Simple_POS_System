@@ -74,8 +74,28 @@
       </section>
     </main>
 
+    <!-- Sales Section -->
+    <section class="section">
+      <h2 style="margin-top:0;">New Sale</h2>
+      <div class="toolbar">
+        <input
+          type="text"
+          id="saleSearchInput"
+          placeholder="Search product for sale"
+          aria-label="Search product for sale"
+        />
+        <button onclick="addSelectedProductToSale()" aria-label="Add to Sale">Add to Sale</button>
+      </div>
+      <div id="saleSearchResults"></div>
+      <h3>Sale Items</h3>
+      <div id="saleItems"></div>
+      <h3>Total: R<span id="saleTotal">0.00</span></h3>
+      <button onclick="completeSale()" aria-label="Complete Sale" style="background:#27ae60;color:#fff;">Complete Sale</button>
+    </section>
+
     <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/sale.js"></script>
   </body>
 </html>
