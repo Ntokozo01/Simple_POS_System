@@ -65,8 +65,32 @@ button {
 .import-group {
   margin-top: 10px;
 }
+.import-group button {
+  padding: 10px 24px;
+  border: 2px solid #27ae60;
+  background: #eee;
+  color: #222;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 0;
+  margin-right: 10px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.import-group button:hover,
+.import-group button:focus {
+  background: #27ae60;
+  color: #fff;
+  border-color: #219150;
+  outline: none;
+}
 @media (max-width: 600px) {
   .toolbar {
     flex-direction: column;
+  }
+  .import-group button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
   }
 }
