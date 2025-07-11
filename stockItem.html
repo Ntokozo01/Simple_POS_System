@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple POS - Add/Edit Stock Item</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="formTitle">Add Stock Item</h1>
+  </header>
+  <main>
+    <form id="stockItemForm">
+      <input type="hidden" id="stockItemId" />
+      <label>Item ID: <input type="text" id="itemId" required /></label>
+      <label>Description: <textarea id="description" required></textarea></label>
+      <label>Sub-units per Item: <input type="number" id="subUnitCount" min="1" required /></label>
+      <label>Quantity: <input type="number" id="quantity" min="0" step="any" required /></label>
+      <label>Total Sub-units: <input type="number" id="totalUnits" min="0" step="any" required /></label>
+      <label>Unit Name: <input type="text" id="unitName" required placeholder="e.g. can, bottle, slice" /></label>
+      <button type="submit">Save</button>
+      <button type="button" onclick="window.location.href='index.html'">Cancel</button>
+    </form>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/stockItemForm.js"></script>
+</body>
+</html>

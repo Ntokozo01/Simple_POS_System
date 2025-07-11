@@ -15,28 +15,16 @@
 
     <!-- Tab Navigation -->
     <nav style="margin-bottom:20px;">
-      <button id="tabProducts" class="tab-btn active" onclick="showTab('products')">Products</button>
       <button id="tabSales" class="tab-btn" onclick="showTab('sales')">Sales</button>
+      <button id="tabProducts" class="tab-btn active" onclick="showTab('products')">Products</button>
+      <button id="tabStockItems" class="tab-btn" onclick="showTab('stockItems')">Stock Items</button>
+      <button id="tabDepletions" class="tab-btn" onclick="showTab('depletions')">Depletion Mappings</button>
     </nav>
 
     <!-- Products Section -->
     <div id="productsSection">
       <main>
-        <div class="toolbar">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by name, ID or category"
-            aria-label="Search products"
-          />
-          <button onclick="window.location.href='product.html'; refreshProducts()" aria-label="Add Product">Add Product</button>
-          <button onclick="refreshProducts()" aria-label="Refresh Products">Refresh</button>
-        </div>
-        <section class="section">
-          <h2 style="margin-top:0;">Product List</h2>
-          <div id="productList"></div>
-        </section>
-
+        <!-- Data Management FIRST -->
         <section class="section">
           <h2 style="margin-top:0;">Data Management</h2>
           <div class="toolbar">
@@ -56,6 +44,88 @@
               Import from JSON/CSV
             </button>
           </div>
+        </section>
+        <div class="toolbar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by name, ID or category"
+            aria-label="Search products"
+          />
+          <button onclick="window.location.href='product.html'; refreshProducts()" aria-label="Add Product">Add Product</button>
+          <button onclick="refreshProducts()" aria-label="Refresh Products">Refresh</button>
+        </div>
+        <section class="section">
+          <h2 style="margin-top:0;">Product List</h2>
+          <div id="productList"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Stock Items Section -->
+    <div id="stockItemsSection" style="display:none;">
+      <main>
+        <!-- Stock Data Management FIRST -->
+        <section class="section">
+          <h2 style="margin-top:0;">Stock Data Management</h2>
+          <div class="toolbar">
+            <button onclick="exportStockData('json')" aria-label="Export Stock Items as JSON">Export JSON</button>
+            <button onclick="exportStockData('csv')" aria-label="Export Stock Items as CSV">Export CSV</button>
+            <button onclick="clearAllStockItems(); refreshStockItems()" aria-label="Clear All Stock Items" style="background:#e74c3c;color:#fff;">Clear All</button>
+          </div>
+          <div class="import-group">
+            <input
+              type="file"
+              id="importStockFile"
+              accept=".json,.csv"
+              style="display: none"
+              onchange="handleStockFileImport(event)"
+            />
+            <button onclick="document.getElementById('importStockFile').click()" aria-label="Import Stock Items from JSON or CSV">
+              Import from JSON/CSV
+            </button>
+          </div>
+        </section>
+        <div class="toolbar">
+          <input
+            type="text"
+            id="stockSearchInput"
+            placeholder="Search by item ID or description"
+            aria-label="Search stock items"
+          />
+          <button onclick="window.location.href='stockItem.html'" aria-label="Add Stock Item">Add Stock Item</button>
+          <button onclick="refreshStockItems()" aria-label="Refresh Stock Items">Refresh</button>
+        </div>
+        <section class="section">
+          <h2 style="margin-top:0;">Stock Items List</h2>
+          <div id="stockItemsList"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Depletion Mappings Section -->
+    <div id="depletionsSection" style="display:none;">
+      <main>
+        <section class="section">
+          <h2 style="margin-top:0;">Product Depletion Mappings</h2>
+          <div class="toolbar">
+            <button onclick="exportDepletionData('json')" aria-label="Export Depletion Mappings as JSON">Export JSON</button>
+            <button onclick="exportDepletionData('csv')" aria-label="Export Depletion Mappings as CSV">Export CSV</button>
+            <button onclick="clearAllDepletions(); refreshDepletions()" aria-label="Clear All Depletion Mappings" style="background:#e74c3c;color:#fff;">Clear All</button>
+          </div>
+          <div class="import-group">
+            <input
+              type="file"
+              id="importDepletionFile"
+              accept=".json,.csv"
+              style="display: none"
+              onchange="handleDepletionFileImport(event)"
+            />
+            <button onclick="document.getElementById('importDepletionFile').click()" aria-label="Import Depletion Mappings from JSON or CSV">
+              Import from JSON/CSV
+            </button>
+          </div>
+          <div id="depletionMappingsList"></div>
         </section>
       </main>
     </div>
@@ -97,19 +167,35 @@
     </div>
 
     <script src="js/storage.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/productItems.js"></script>
     <script src="js/app.js"></script>
     <script src="js/sale.js"></script>
+    <script src="js/stockItems.js"></script>
     <script>
       function showTab(tab) {
         document.getElementById('productsSection').style.display = tab === 'products' ? '' : 'none';
+        document.getElementById('stockItemsSection').style.display = tab === 'stockItems' ? '' : 'none';
+        document.getElementById('depletionsSection').style.display = tab === 'depletions' ? '' : 'none';
         document.getElementById('salesSection').style.display = tab === 'sales' ? '' : 'none';
         document.getElementById('tabProducts').classList.toggle('active', tab === 'products');
+        document.getElementById('tabStockItems').classList.toggle('active', tab === 'stockItems');
+        document.getElementById('tabDepletions').classList.toggle('active', tab === 'depletions');
         document.getElementById('tabSales').classList.toggle('active', tab === 'sales');
+        // Save the last open tab to localStorage
+        localStorage.setItem('lastOpenTab', tab);
+        if (tab === 'stockItems') {
+          refreshStockItems();
+        } else if (tab === 'products') {
+          refreshProducts();
+        } else if (tab === 'depletions') {
+          refreshDepletions();
+        }
       }
-      // Ensure default tab is set on page load
       document.addEventListener('DOMContentLoaded', function() {
-        showTab('products');
+        // Restore last open tab or default to 'sales'
+        const lastTab = localStorage.getItem('lastOpenTab') || 'sales';
+        showTab(lastTab);
+        refreshDepletions();
       });
     </script>
   </body>
