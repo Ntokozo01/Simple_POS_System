@@ -21,17 +21,20 @@ button {
   padding: 10px;
 }
 
-#productList {
+#productList, #stockItemsList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 15px;
 }
 
 .product-card {
-  background-color: white;
-  padding: 15px;
+  background: #fff;
+  border: 1px solid #e1e1e1;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  max-width: 420px;
 }
 
 .tab-btn {
@@ -84,6 +87,13 @@ button {
   border-color: #219150;
   outline: none;
 }
+#depletionMappingsSection label {
+  font-weight: bold;
+}
+.depletion-mapping-row select,
+.depletion-mapping-row input[type="number"] {
+  margin-right: 8px;
+}
 @media (max-width: 600px) {
   .toolbar {
     flex-direction: column;
@@ -93,4 +103,24 @@ button {
     margin-right: 0;
     margin-bottom: 10px;
   }
+}
+.stock-list {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+  list-style: disc inside;
+  color: #219150;
+  font-size: 0.98em;
+}
+.stock-list li {
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+.combo-dropdown {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 4px;
+  font-size: 0.98em;
+}
+.combo-dropdown div:hover, .combo-dropdown div:focus {
+  background: #e0f7fa;
+  outline: none;
 }

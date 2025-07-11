@@ -35,7 +35,6 @@ async function searchProductsForSale() {
     return;
   }
 
-  // Build table without quantity input
   const table = document.createElement('table');
   table.className = 'sale-table';
   table.innerHTML = `
@@ -53,7 +52,10 @@ async function searchProductsForSale() {
     <tbody></tbody>
   `;
   const tbody = table.querySelector('tbody');
-  filtered.forEach(product => {
+  
+  for (const product of filtered) {
+    const maxSellable = await getProductMaxSellableQuantity(product.id);
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="Product ID">${product.id}</td>
@@ -61,30 +63,32 @@ async function searchProductsForSale() {
       <td data-label="Name">${product.name}</td>
       <td data-label="Description">${product.description || ''}</td>
       <td data-label="Price">R${product.price}</td>
-      <td data-label="Stock">${product.quantity}</td>
+      <td data-label="Stock">${maxSellable}</td>
       <td data-label="Select">
         ${
-          product.quantity > 0
+          maxSellable > 0
             ? `<button onclick="selectProductForSale('${product.id}')">Select</button>`
             : `<span style="color:#e74c3c;font-weight:bold;">Out of Stock</span>`
         }
       </td>
     `;
     tbody.appendChild(tr);
-  });
+  }
   resultsDiv.appendChild(table);
 }
 
 // Show popup on select
 async function selectProductForSale(id) {
   selectedProductForSale = id;
-  const allProducts = await getAllProducts();
-  const product = allProducts.find(p => p.id === id);
+  const product = await getProductById(id);
   if (!product) return;
-  document.getElementById('popupProductName').innerText = `${product.name} (Stock: ${product.quantity})`;
+
+  const maxSellable = await getProductMaxSellableQuantity(product.id);
+
+  document.getElementById('popupProductName').innerText = `${product.name} (Stock: ${maxSellable})`;
   const qtyInput = document.getElementById('popupProductQty');
   qtyInput.value = 1;
-  qtyInput.max = product.quantity;
+  qtyInput.max = maxSellable;
   qtyInput.min = 1;
   document.getElementById('saleAddPopup').style.display = 'flex';
 }
@@ -100,26 +104,29 @@ async function addSelectedProductToSale() {
     alert('Please select a product first.');
     return;
   }
-  const allProducts = await getAllProducts();
-  const product = allProducts.find(p => p.id === selectedProductForSale);
+  const product = await getProductById(selectedProductForSale);
   if (!product) {
     alert('Product not found.');
     return;
   }
+
+  const maxSellable = await getProductMaxSellableQuantity(product.id);
+
   const qtyInput = document.getElementById('popupProductQty');
   const qty = parseInt(qtyInput.value);
   if (isNaN(qty) || qty < 1) {
     alert('Please enter a valid quantity.');
     return;
   }
-  if (qty > product.quantity) {
+  if (qty > maxSellable) {
     alert('Cannot sell more than available stock.');
     return;
   }
+
   // Check if already in sale
   const existing = saleItems.find(item => item.id === product.id);
   if (existing) {
-    if (existing.quantity + qty > product.quantity) {
+    if (existing.quantity + qty > maxSellable) {
       alert('Not enough stock.');
       return;
     }
@@ -130,7 +137,7 @@ async function addSelectedProductToSale() {
       name: product.name,
       price: product.price,
       quantity: qty,
-      maxQuantity: product.quantity
+      maxQuantity: maxSellable
     });
   }
   selectedProductForSale = null;
@@ -159,25 +166,49 @@ function removeSaleItem(id) {
   renderSaleItems();
 }
 
+// Update the completeSale function to use linked stock
 async function completeSale() {
   if (saleItems.length === 0) {
     alert('No items in sale.');
     return;
   }
-  // Update stock
   for (const item of saleItems) {
-    const product = await getProductById(item.id);
-    if (product.quantity < item.quantity) {
-      alert(`Not enough stock for ${product.name}.`);
-      return;
+    const depletions = await getDepletionsByProductId(item.id);
+    for (const dep of depletions) {
+      const stockItem = await getStockItemById(dep.stockItemId);
+      if (stockItem) {
+        stockItem.totalUnits -= dep.depletionQuantity * item.quantity;
+        if (stockItem.totalUnits < 0) stockItem.totalUnits = 0;
+        stockItem.quantity = stockItem.totalUnits / stockItem.subUnitCount;
+        await saveStockItem(stockItem);
+      }
     }
-    product.quantity -= item.quantity;
-    await saveProduct(product);
   }
   alert('Sale completed!');
   saleItems = [];
   renderSaleItems();
   if (typeof refreshProducts === 'function') refreshProducts();
+  if (typeof refreshStockItems === 'function') refreshStockItems();
   document.getElementById('saleSearchResults').innerHTML = '';
   document.getElementById('saleSearchInput').value = '';
+}
+
+function getTotalUnits(stockItem) {
+  return typeof stockItem.totalUnits === 'number'
+    ? stockItem.totalUnits
+    : (stockItem.quantity || 0) * (stockItem.subUnitCount || 1);
+}
+
+async function getProductMaxSellableQuantity(productId) {
+  const depletions = await getDepletionsByProductId(productId);
+  if (!depletions.length) return 0;
+  let min = Infinity;
+  for (const dep of depletions) {
+    const stockItem = await getStockItemById(dep.stockItemId);
+    if (!stockItem || dep.depletionQuantity <= 0) return 0;
+    const totalUnits = getTotalUnits(stockItem);
+    const possible = Math.floor(totalUnits / dep.depletionQuantity);
+    if (possible < min) min = possible;
+  }
+  return min === Infinity ? 0 : min;
 }

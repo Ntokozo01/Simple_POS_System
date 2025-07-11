@@ -16,9 +16,15 @@
       <input type="hidden" id="productId" />
       <label>Name: <input type="text" id="name" required /></label>
       <label>Category: <input type="text" id="category" required /></label>
-      <label>Price: <input type="number" id="price" required /></label>
-      <label>Quantity: <input type="number" id="quantity" required /></label>
+      <label>Price: <input type="number" id="price" step="0.01" required /></label>
       <label>Description: <textarea id="description"></textarea></label>
+      
+      <div id="depletionMappingsSection">
+        <label>Stock Depletion Mapping:</label>
+        <div id="depletionMappings"></div>
+        <button type="button" id="addDepletionMappingBtn">Add Stock Depletion</button>
+      </div>
+
       <button type="submit">Save</button>
       <button type="button" onclick="window.location.href='index.html'">Cancel</button>
     </form>
